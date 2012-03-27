@@ -1,0 +1,8 @@
+This program downloads projects from Github and performs analysis on them.
+
+It downloads projects from github, then 
+	counts lines of code, occurences of 
+	keywords, and other stats and creates
+	an HTML table to present the results.  
+
+
