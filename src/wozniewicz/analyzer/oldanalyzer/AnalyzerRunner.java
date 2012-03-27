@@ -18,18 +18,21 @@ public class AnalyzerRunner {
 
 	/* CONFIG */
 	// projectRoot: the root of all the downloaded project folders
-	static String projectRoot;
+	String projectRoot;
 	
-	static String rejectRoot;
+	String rejectRoot;
 	
-	static String[] keywords;
+	String[] keywords;
 	
-	static int THRESHOLD_LOC;
+	int thresholdLoc;
 	
 	// Path to the HTML file with the table of project descriptions
-	public static String PATH_TO_DESCRIPTION_FILE = 
+	public String PATH_TO_DESCRIPTION_FILE = 
 			"C:\\PROJECTS\\PURE\\AkkaProjectsInfo\\webpage\\akkaprojects.html";
-	public static Document descriptionDoc;
+	public Document descriptionDoc;
+	
+	
+	Analyzer analyzer = new Analyzer();
 	
 	
 	public AnalyzerRunner(Properties props) 
@@ -37,12 +40,12 @@ public class AnalyzerRunner {
 		projectRoot = props.getProperty("downloadroot");
 		rejectRoot = props.getProperty("rejectroot");
 		keywords = (props.getProperty("searchkeyword")).split(" ");
-		THRESHOLD_LOC = Integer.parseInt(props.getProperty("minlines"));
+		thresholdLoc = Integer.parseInt(props.getProperty("minlines"));
 	}
 	
 	
 	
-	public static void analyzeAll()
+	public void analyzeAll()
 	{
 		File projectDescriptionFile = new File(PATH_TO_DESCRIPTION_FILE);
 		try {
@@ -60,7 +63,7 @@ public class AnalyzerRunner {
 		
 		long starttime = System.currentTimeMillis();
 		System.out.print("Finding all projects...");
-		File[] projects = Analyzer.getDirectoryContents(projectRoot);
+		File[] projects = analyzer.getDirectoryContents(projectRoot);
 		System.out.println(System.currentTimeMillis()-starttime + "ms");
 		
 		
@@ -81,7 +84,7 @@ public class AnalyzerRunner {
 			pd.setKeywords(keywords);			// Set the keywords of the ProjecData object
 			pd.projectFolder = project;			// Set the root project folder
 			
-			pd.setFiles(Analyzer.getAllFiles(project));	// Set the file list in the ProjectData object
+			pd.setFiles(analyzer.getAllFiles(project));	// Set the file list in the ProjectData object
 			if (pd.initializeMatrix() < 0 ) {
 				// There weren't enough files in this project, so remove
 				continue;
@@ -91,8 +94,8 @@ public class AnalyzerRunner {
 						" (" + count + "/" + validProjects.size() + ")");
 			count++;
 			
-			if (Analyzer.checkLOC(pd)) {
-				Analyzer.fillAllData(pd);
+			if (analyzer.checkLOC(pd, thresholdLoc, rejectRoot)) {
+				analyzer.fillAllData(pd, descriptionDoc);
 				projectDataList.add(pd);
 			}
 			
@@ -107,14 +110,14 @@ public class AnalyzerRunner {
 		 */
 		System.out.println("RESULTS: \n\n");
 		for (ProjectData pd : projectDataList) {
-			if (pd.linecount > THRESHOLD_LOC) {
+			if (pd.linecount > thresholdLoc) {
 				Presenter.printProjectData(pd);
 			}
 			
 		}
 		
-		Presenter.printProjectDataHTML(projectDataList, THRESHOLD_LOC, false);
-		Presenter.printProjectDataHTML(projectDataList, THRESHOLD_LOC, true);
+		Presenter.printProjectDataHTML(projectDataList, thresholdLoc, false);
+		Presenter.printProjectDataHTML(projectDataList, thresholdLoc, true);
 		
 		
 		

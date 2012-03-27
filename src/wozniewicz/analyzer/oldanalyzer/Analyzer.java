@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsoup.nodes.Document;
+
 /**
  * Class for analyzing .scala source files
  * @author Martin Wozniewicz
@@ -33,7 +35,7 @@ public class Analyzer {
 	 * @param minLoc minimum lines of code to be accepted
 	 * @return List<File> of all the qualifying projects
 	 */
-	public static List<File> getProjectsForAnalysis(File[] projects, int minLoc) {
+	public List<File> getProjectsForAnalysis(File[] projects, int minLoc) {
 		List<File> validProjects = new ArrayList<File>();
 		for (int i=0; i<projects.length; i++) {
 			
@@ -52,7 +54,7 @@ public class Analyzer {
 	 * @param project_path
 	 * @return
 	 */
-	private static int ClocProject(String project_path) 
+	private int ClocProject(String project_path) 
 	{
 		//System.out.print("Counting lines of scala code in " + project_path + "...");
 		try {
@@ -78,7 +80,7 @@ public class Analyzer {
 		return 0; 
 	}
 	
-	private static int ClocProject(File project)
+	private int ClocProject(File project)
 	{
 		String path = project.getAbsolutePath();
 		return ClocProject(path);
@@ -89,7 +91,7 @@ public class Analyzer {
 	 * @param project the full path to the project
 	 * @param keyword the keyword to search for
 	 */
-	public static List<File> checkProjectForKeyword(File project, String keyword) {
+	public List<File> checkProjectForKeyword(File project, String keyword) {
 		List<File> projectFiles = new ArrayList<File>();
 		getAllFiles(projectFiles, project, new ExtensionFilter() );
 		
@@ -105,7 +107,7 @@ public class Analyzer {
 	 * @param dir the root directory which should be searched 
 	 * @return Files/folders inside a directory
 	 */
-	public static File[] getDirectoryContents(String dir) 
+	public File[] getDirectoryContents(String dir) 
 	{
 		File folder = new File(dir);
 		return folder.listFiles();
@@ -118,7 +120,7 @@ public class Analyzer {
 	 * @param dir root directory to start search in
 	 * @param filter a FilenameFilter that can narrow down the files returned
 	 */
-	private static void getAllFiles(List<File> files, File dir, FilenameFilter filter)
+	private void getAllFiles(List<File> files, File dir, FilenameFilter filter)
 	{
 		File[] contents = dir.listFiles();
 		if (contents == null) 
@@ -139,7 +141,7 @@ public class Analyzer {
 	 * @param dir The directory to search
 	 * @return List of all the .scala files within the project
 	 */
-	public static List<File> getAllFiles(File dir)
+	public List<File> getAllFiles(File dir)
 	{
 		List<File> result = new ArrayList<File>();
 		getAllFiles(result, dir, new ExtensionFilter() );
@@ -152,7 +154,7 @@ public class Analyzer {
 	 * @param keyword 
 	 * @return 
 	 */
-	private static List<File> getFilesContainingKeyword(List<File> projectFiles, String keyword) {
+	private List<File> getFilesContainingKeyword(List<File> projectFiles, String keyword) {
 		List<File> filesWithKeyword = new ArrayList<File>();
 		for (File currentFile: projectFiles) {
 			if (fileHasKeyword(currentFile, keyword)) {
@@ -171,7 +173,7 @@ public class Analyzer {
 	 * @param keyword
 	 * @return
 	 */
-	private static boolean fileHasKeyword(File currentFile, String keyword) {
+	private boolean fileHasKeyword(File currentFile, String keyword) {
 		
 		BufferedReader input = null;
 		
@@ -201,7 +203,7 @@ public class Analyzer {
 	 * Fills out the matrix, and linecount fields of a ProjectData
 	 * @param pd
 	 */
-	public static void fillAllData(ProjectData pd)
+	public void fillAllData(ProjectData pd, Document descriptionDoc)
 	{
 		fillMatrix(pd);
 		
@@ -209,7 +211,7 @@ public class Analyzer {
 				
 		pd.urlGit = Parser.getURLFromFile(gitdir);
 		
-		List<String> data = Parser.findProjectData(pd.projectFolder);
+		List<String> data = Parser.findProjectData(pd.projectFolder, descriptionDoc);
 		if (data != null) {
 			pd.description = data.get(0);
 			pd.comments = data.get(1);
@@ -223,7 +225,7 @@ public class Analyzer {
 	 * @param pd
 	 * @return
 	 */
-	private static File getGitSubdirectory(ProjectData pd) {
+	private File getGitSubdirectory(ProjectData pd) {
 		File projfolder = pd.projectFolder;
 		File[] contents = getDirectoryContents(projfolder.getAbsolutePath());
 		for (File f : contents)
@@ -240,7 +242,7 @@ public class Analyzer {
 	 * Calls Analyzer methods to fill out the matrix of the given ProjectData
 	 * @param pd
 	 */
-	public static void fillMatrix(ProjectData pd)
+	public void fillMatrix(ProjectData pd)
 	{
 		for (int k = 0; k<pd.keywords.size(); k++) {
 			for (int f=0; f<pd.files.size(); f++ ) {
@@ -254,10 +256,10 @@ public class Analyzer {
 	 * Counts lines and rejects the short ones
 	 * 
 	 */
-	public static boolean checkLOC(ProjectData pd) {
+	public boolean checkLOC(ProjectData pd, int threshold, String rejectRoot) {
 		pd.linecount = ClocProject(pd.projectFolder);
-		if (pd.linecount < AnalyzerRunner.THRESHOLD_LOC) {
-			File rejdir = new File(AnalyzerRunner.rejectRoot);
+		if (pd.linecount < threshold) {
+			File rejdir = new File(rejectRoot);
 			File curr = pd.projectFolder;
 			if (!curr.renameTo(new File(rejdir, curr.getName()))) {
 				System.out.println("Failed to reject file "+ curr.getName() + " to " + rejdir.getAbsolutePath());
