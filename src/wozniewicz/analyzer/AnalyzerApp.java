@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import wozniewicz.analyzer.downloader.GithubDownloadManager;
+
 public class AnalyzerApp {
 
 	/**
@@ -13,8 +15,9 @@ public class AnalyzerApp {
 	public static void main(String[] args) {
 		Util util = new Util();
 		Properties p = util.loadProps();
-		System.out.println(p.getProperty("searchlanguage"));
 		
+		GithubDownloadManager dlm = new GithubDownloadManager(p);
+		dlm.downloadNextPages(2);
 		
 	} // main
 	

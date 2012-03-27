@@ -15,10 +15,10 @@ public class DownloadUnzip implements Runnable {
 	private final String fileName = "src.zip";
 	final int BUFFER = 2048;
 
-	public DownloadUnzip(URL zipFile, String username, String projectName) {
+	public DownloadUnzip(URL zipFile, String username, String projectName, String directoryroot) {
 		this.zipFile = zipFile;
 		System.out.println("unzipping "+projectName+"...");
-		directory = "projects2/" + projectName + "/";
+		directory = directoryroot + projectName + "/";
 		File file = new File(directory);
 		file.mkdir();
 

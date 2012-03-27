@@ -43,7 +43,7 @@ public class Parser {
 	
 	public static List<String> findProjectData(File projectFile) 
 	{
-		Document descFile = Main.descriptionDoc;
+		Document descFile = AnalyzerRunner.descriptionDoc;
 		
 		// Finds the table row which contains the project's name
 		String selector = "tr:contains(" + projectFile.getName() + ")";

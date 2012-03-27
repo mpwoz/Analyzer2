@@ -256,8 +256,8 @@ public class Analyzer {
 	 */
 	public static boolean checkLOC(ProjectData pd) {
 		pd.linecount = ClocProject(pd.projectFolder);
-		if (pd.linecount < Main.THRESHOLD_LOC) {
-			File rejdir = new File(Main.rejectRoot);
+		if (pd.linecount < AnalyzerRunner.THRESHOLD_LOC) {
+			File rejdir = new File(AnalyzerRunner.rejectRoot);
 			File curr = pd.projectFolder;
 			if (!curr.renameTo(new File(rejdir, curr.getName()))) {
 				System.out.println("Failed to reject file "+ curr.getName() + " to " + rejdir.getAbsolutePath());
