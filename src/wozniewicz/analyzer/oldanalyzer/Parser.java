@@ -10,6 +10,8 @@ import org.jsoup.select.Elements;
 
 /**
  * This class parses all kinds of data for Analyzer
+ * Primarily used to get the descriptions and comments out of an already-existing HTML file
+ * Not used in the current version, since it downloads new projects rather than existing, already-analyzed ones
  * @author Martin Wozniewicz
  *
  */

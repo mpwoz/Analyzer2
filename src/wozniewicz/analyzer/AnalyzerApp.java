@@ -28,7 +28,7 @@ public class AnalyzerApp {
 		while (dlm.downloadNextPages(2)) {
 			ar.analyzeAll();
 			count++;
-			if (count > 100) break;
+			//if (count > 100) break;
 		}
 		
 		Presenter.endProjectFile(outFile);
