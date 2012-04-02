@@ -42,18 +42,19 @@ public class GithubDownloadManager {
 	 */
 	public boolean downloadNextPages(int n) 
 	{
+		boolean retval = true;	// Keeps track of whether there are more pages to download
 		executor = Executors.newFixedThreadPool(nthreads);
 		while (n>0) {
 			page++;
 			if (!downloadCurrentPage()) {
-				return false;
+				retval = false;
 			}
 			n--;
 		}
 		executor.shutdown();
 		// Wait until all threads are finish
 		while (!executor.isTerminated()) {}
-		return true;
+		return retval;
 	}
 	
 	
@@ -127,7 +128,7 @@ public class GithubDownloadManager {
 	public URL getURL(int pagenum) throws MalformedURLException
 	{
 		return new URL("https://github.com/search?q=" +
-				props.getProperty("searchkeyword") + 
+				props.getProperty("searchkeywordquery") + 
 				"%20language%3A" +
 				props.getProperty("searchlanguage") +
 				"&repo=&langOverride=&start_value=" +

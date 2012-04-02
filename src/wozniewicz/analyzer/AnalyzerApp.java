@@ -1,11 +1,10 @@
 package wozniewicz.analyzer;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import wozniewicz.analyzer.downloader.GithubDownloadManager;
+import wozniewicz.analyzer.oldanalyzer.AnalyzerRunner;
+import wozniewicz.analyzer.oldanalyzer.Presenter;
 
 public class AnalyzerApp {
 
@@ -17,8 +16,22 @@ public class AnalyzerApp {
 		Properties p = util.loadProps();
 		
 		GithubDownloadManager dlm = new GithubDownloadManager(p);
-		dlm.downloadNextPages(2);
+		String outDir = p.getProperty("outputroot");
+		String outFile = "output-" + System.currentTimeMillis();
+		outFile = outDir + outFile + ".html";
+		AnalyzerRunner ar = new AnalyzerRunner(p, outFile);
 		
+		Presenter.startProjectFile(null, outFile);
+		
+		int count = 0;
+		// Download as long as there are more pages
+		while (dlm.downloadNextPages(2)) {
+			ar.analyzeAll();
+			count++;
+			if (count > 100) break;
+		}
+		
+		Presenter.endProjectFile(outFile);
 	} // main
 	
 	

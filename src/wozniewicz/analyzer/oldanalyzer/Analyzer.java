@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.jsoup.nodes.Document;
 
 /**
@@ -59,7 +60,8 @@ public class Analyzer {
 		//System.out.print("Counting lines of scala code in " + project_path + "...");
 		try {
             Runtime rt = Runtime.getRuntime();
-            Process pr = rt.exec("cloc.exe --quiet --progress-rate=0 --match-f=\\.scala$ " + project_path);
+            String cmd = "lib/cloc.exe --quiet --progress-rate=0 --match-f=\\.scala$ " + project_path;
+            Process pr = rt.exec(cmd);
             
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 
@@ -203,7 +205,7 @@ public class Analyzer {
 	 * Fills out the matrix, and linecount fields of a ProjectData
 	 * @param pd
 	 */
-	public void fillAllData(ProjectData pd, Document descriptionDoc)
+	public void fillAllData(ProjectData pd, String finishedRoot)
 	{
 		fillMatrix(pd);
 		
@@ -211,6 +213,12 @@ public class Analyzer {
 				
 		pd.urlGit = Parser.getURLFromFile(gitdir);
 		
+		pd.description = pd.comments = "";
+		
+		File curr = pd.projectFolder;
+		File done = new File(finishedRoot, pd.projectFolder.getName());
+		
+		/*
 		List<String> data = Parser.findProjectData(pd.projectFolder, descriptionDoc);
 		if (data != null) {
 			pd.description = data.get(0);
@@ -218,6 +226,7 @@ public class Analyzer {
 		} else {
 			pd.description = pd.comments = "Unavailable";
 		}
+		*/
 	}
 	
 	/**
@@ -259,10 +268,12 @@ public class Analyzer {
 	public boolean checkLOC(ProjectData pd, int threshold, String rejectRoot) {
 		pd.linecount = ClocProject(pd.projectFolder);
 		if (pd.linecount < threshold) {
-			File rejdir = new File(rejectRoot);
 			File curr = pd.projectFolder;
-			if (!curr.renameTo(new File(rejdir, curr.getName()))) {
-				System.out.println("Failed to reject file "+ curr.getName() + " to " + rejdir.getAbsolutePath());
+			try {
+				FileUtils.deleteDirectory(pd.projectFolder);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			return false;
 		}

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 	
@@ -22,6 +23,8 @@ public class AnalyzerRunner {
 	
 	String rejectRoot;
 	
+	String finishedRoot;
+	
 	String[] keywords;
 	
 	int thresholdLoc;
@@ -34,26 +37,31 @@ public class AnalyzerRunner {
 	
 	Analyzer analyzer = new Analyzer();
 	
+	String filename;
 	
-	public AnalyzerRunner(Properties props) 
+	public AnalyzerRunner(Properties props, String filename) 
 	{
 		projectRoot = props.getProperty("downloadroot");
 		rejectRoot = props.getProperty("rejectroot");
+		finishedRoot = props.getProperty("finishedroot");
 		keywords = (props.getProperty("searchkeyword")).split(" ");
 		thresholdLoc = Integer.parseInt(props.getProperty("minlines"));
+		
+		this.filename = filename;
 	}
 	
 	
 	
 	public void analyzeAll()
 	{
-		File projectDescriptionFile = new File(PATH_TO_DESCRIPTION_FILE);
-		try {
+	/*
+	 	File projectDescriptionFile = new File(PATH_TO_DESCRIPTION_FILE);
+	 	try {
 			descriptionDoc = Jsoup.parse(projectDescriptionFile, "UTF-8");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+	*/	
 		
 		
 		
@@ -61,12 +69,8 @@ public class AnalyzerRunner {
 		 * Get all projects in the project folder
 		 */
 		
-		long starttime = System.currentTimeMillis();
 		System.out.print("Finding all projects...");
 		File[] projects = analyzer.getDirectoryContents(projectRoot);
-		System.out.println(System.currentTimeMillis()-starttime + "ms");
-		
-		
 		
 		
 		/**
@@ -76,10 +80,13 @@ public class AnalyzerRunner {
 		List<File> validProjects = Arrays.asList(projects);
 		int count = 1;
 		
-		starttime = System.currentTimeMillis();
+		long starttime = System.currentTimeMillis();
 		
 		List<ProjectData> projectDataList = new ArrayList<ProjectData>();
 		for(File project : validProjects) {
+			if (done.contains(project.getName())) {
+				continue;
+			}
 			ProjectData pd = new ProjectData();	// Object for storing all the data about a project
 			pd.setKeywords(keywords);			// Set the keywords of the ProjecData object
 			pd.projectFolder = project;			// Set the root project folder
@@ -95,8 +102,12 @@ public class AnalyzerRunner {
 			count++;
 			
 			if (analyzer.checkLOC(pd, thresholdLoc, rejectRoot)) {
-				analyzer.fillAllData(pd, descriptionDoc);
-				projectDataList.add(pd);
+				analyzer.fillAllData(pd, finishedRoot);
+				if (pd.getFilesByKeyword(0).size() > 0)
+				{
+					projectDataList.add(pd);
+				}
+				else moveToDone(pd);
 			}
 			
 		}
@@ -108,25 +119,34 @@ public class AnalyzerRunner {
 		/**
 		 * Print out the results
 		 */
-		System.out.println("RESULTS: \n\n");
+		System.out.println("Printing results...\n");
 		for (ProjectData pd : projectDataList) {
-			if (pd.linecount > thresholdLoc) {
-				Presenter.printProjectData(pd);
-			}
-			
+			if (!done.contains(pd.projectFolder.getName()))
+			Presenter.writeProjectData(pd, filename);
+			moveToDone(pd);
 		}
-		
-		Presenter.printProjectDataHTML(projectDataList, thresholdLoc, false);
-		Presenter.printProjectDataHTML(projectDataList, thresholdLoc, true);
-		
-		
-		
-		
+			
+	}
+	
+	List<String> done = new ArrayList<String>();
+	
+	void endProjectFile() {
+		Presenter.endProjectFile(filename);
 	}
 	
 	
-	
-
+	void moveToDone(ProjectData pd) 
+	{
+		done.add(pd.projectFolder.getName());
+		
+		File curr = pd.projectFolder;
+		File rej = new File(finishedRoot, pd.projectFolder.getName());
+		
+		System.out.println("Moving " + curr.getPath() + " to " + rej.getPath());
+		if (!curr.renameTo(rej)) {
+			System.out.println("Failed.");
+		}
+	}
 
 	
 	
