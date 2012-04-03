@@ -55,8 +55,7 @@ public class Analyzer {
 		 * Get all projects in the project folder
 		 */
 		
-		System.out.print("Finding all new projects...");
-		List<File> projects = AnalyzerUtil.getDirectoryContents(projectRoot);
+		List<File> allProjects = AnalyzerUtil.getDirectoryContents(projectRoot);
 		
 		
 		/**
@@ -67,49 +66,44 @@ public class Analyzer {
 		
 		t.Start();
 		
-		List<ProjectData> projectDataList = new ArrayList<ProjectData>();
-		for(File project : projects) {
-			if (done.contains(project.getName())) {
-				continue;
-			}
-			ProjectData pd = new ProjectData();	// Object for storing all the data about a project
-			pd.setKeywords(keywords);			// Set the keywords of the ProjecData object
-			pd.projectFolder = project;			// Set the root project folder
+		List<ProjectData> projectStats = new ArrayList<ProjectData>();
+		for(File project : allProjects) {
 			
-			pd.setFiles(AnalyzerUtil.getAllFiles(project));	// Set the file list in the ProjectData object
-			if (pd.initializeMatrix() < 0 ) {
-				// There weren't enough files in this project, so remove
-				continue;
-			}
+			String name = project.getName();
 			
-			System.out.println("Collecting data for " + project.getName() + "..." + 
-						" (" + count + "/" + projects.size() + ")");
+			// Make sure we don't analyze the same project twice
+			if (done.contains(name))
+				continue;
+			done.add(name);
+			
+			// All the files in the project's folder
+			List<File> projectFiles = AnalyzerUtil.getAllFiles(project);
+			
+			// If there aren't any files with the extension we want, don't use this project
+			if (projectFiles.size() == 0) 
+				continue;
+			
+			
+			System.out.println("Collecting data for " + name + "..." + 
+						" (" + count + "/" + allProjects.size() + ")");
 			count++;
+			
+			
+			ProjectData pd = new ProjectData(project, projectFiles, keywords);	
 			
 			if (AnalyzerUtil.checkLOC(pd, thresholdLoc, rejectRoot)) {
 				AnalyzerUtil.fillAllData(pd, finishedRoot);
 				if (pd.getFilesByKeyword(0).size() > 0)
 				{
-					projectDataList.add(pd);
+					projectStats.add(pd);
 				}
-				else moveToDone(pd);
 			}
 			
 		}
 		t.Stop();
 		
 		
-		
-		/**
-		 * Create list of the valid results
-		 */
-		List<ProjectData> res = new ArrayList<ProjectData>();
-		for (ProjectData pd : projectDataList) {
-			if (!done.contains(pd.projectFolder.getName()))
-				res.add(pd);
-			moveToDone(pd);
-		}
-		return res;
+		return projectStats;
 			
 	}
 	

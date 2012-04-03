@@ -121,29 +121,13 @@ public class AnalyzerUtil {
 	public static void fillAllData(ProjectData pd, String finishedRoot)
 	{
 		fillMatrix(pd);
-		
 		File gitdir = getGitSubdirectory(pd);
-				
 		pd.url = Parser.getURLFromFile(gitdir);
-		
 		pd.description = pd.comments = "";
-		
-		File curr = pd.projectFolder;
-		File done = new File(finishedRoot, pd.projectFolder.getName());
-		
-		/*
-		List<String> data = Parser.findProjectData(pd.projectFolder, descriptionDoc);
-		if (data != null) {
-			pd.description = data.get(0);
-			pd.comments = data.get(1);
-		} else {
-			pd.description = pd.comments = "Unavailable";
-		}
-		*/
 	}
 	
 	/**
-	 * Gets the subdirectory which contains the author and project, one level below project_folder
+	 * Gets the subdirectory which contains the author and project info, one level below project_folder
 	 * @param pd
 	 * @return
 	 */
@@ -231,13 +215,6 @@ public class AnalyzerUtil {
 	public static boolean checkLOC(ProjectData pd, int threshold, String rejectRoot) {
 		pd.linecount = ClocProject(pd.projectFolder);
 		if (pd.linecount < threshold) {
-			File curr = pd.projectFolder;
-			try {
-				FileUtils.deleteDirectory(pd.projectFolder);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			return false;
 		}
 		return true;

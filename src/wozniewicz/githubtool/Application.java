@@ -51,7 +51,7 @@ public class Application {
 		// Download as long as there are more pages
 		while (downloader.downloadNextPages(2)) {
 			projects = analyzer.analyzeNewProjects();
-
+			
 			count++;
 			//if (count > 100) break;
 		}

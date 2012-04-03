@@ -35,6 +35,16 @@ public class ProjectData {
 	public String comments;
 	
 	
+	/** Constructor */
+	public ProjectData(File project, List<File> files, String[] keywords)
+	{
+		this.projectFolder = project;	// Set the root project folder
+		setKeywords(keywords);			// Set the keywords of the ProjecData object
+		setFiles(files);				// Set the file list in the ProjectData object
+		initializeMatrix();
+	}
+	
+	
 	/**
 	 * Given a list of files, sets the 'files' array to its contents (as one of the axes on the matrix)
 	 * @param fileList
@@ -56,10 +66,6 @@ public class ProjectData {
 	
 	public int initializeMatrix(int numKeywords, int numFiles)
 	{
-		if (numKeywords <= 0 || numFiles <= 0) {
-			//System.out.println("ERROR: Attempting to initialize 0-dim. matrix!");
-			return -1;
-		}
 		matrix = new boolean[numKeywords][numFiles];
 		for (int k=0; k<numKeywords; k++) {
 			for (int f=0; f<numFiles; f++) {
