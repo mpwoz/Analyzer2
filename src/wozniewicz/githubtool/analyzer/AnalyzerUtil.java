@@ -8,6 +8,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -71,10 +72,11 @@ public class AnalyzerUtil {
 	 * @param dir the root directory which should be searched 
 	 * @return Files/folders inside a directory
 	 */
-	public File[] getDirectoryContents(String dir) 
+	public static List<File> getDirectoryContents(String dir) 
 	{
 		File folder = new File(dir);
-		return folder.listFiles();
+		File[] files = folder.listFiles();
+		return Arrays.asList(files);
 	}
 	
 	
@@ -84,7 +86,7 @@ public class AnalyzerUtil {
 	 * @param dir root directory to start search in
 	 * @param filter a FilenameFilter that can narrow down the files returned
 	 */
-	private void getAllFiles(List<File> files, File dir, FilenameFilter filter)
+	private static void getAllFiles(List<File> files, File dir, FilenameFilter filter)
 	{
 		File[] contents = dir.listFiles();
 		if (contents == null) 
@@ -105,7 +107,7 @@ public class AnalyzerUtil {
 	 * @param dir The directory to search
 	 * @return List of all the .scala files within the project
 	 */
-	public List<File> getAllFiles(File dir)
+	public static List<File> getAllFiles(File dir)
 	{
 		List<File> result = new ArrayList<File>();
 		getAllFiles(result, dir, new ExtensionFilter() );
@@ -116,7 +118,7 @@ public class AnalyzerUtil {
 	 * Fills out the matrix, and linecount fields of a ProjectData
 	 * @param pd
 	 */
-	public void fillAllData(ProjectData pd, String finishedRoot)
+	public static void fillAllData(ProjectData pd, String finishedRoot)
 	{
 		fillMatrix(pd);
 		
@@ -145,9 +147,9 @@ public class AnalyzerUtil {
 	 * @param pd
 	 * @return
 	 */
-	private File getGitSubdirectory(ProjectData pd) {
+	private static File getGitSubdirectory(ProjectData pd) {
 		File projfolder = pd.projectFolder;
-		File[] contents = getDirectoryContents(projfolder.getAbsolutePath());
+		List<File> contents = getDirectoryContents(projfolder.getAbsolutePath());
 		for (File f : contents)
 		{
 			if ( f.getName().indexOf(pd.projectFolder.getName()) >= 0 ) {
@@ -162,7 +164,7 @@ public class AnalyzerUtil {
 	 * Calls Analyzer methods to fill out the matrix of the given ProjectData
 	 * @param pd
 	 */
-	public void fillMatrix(ProjectData pd)
+	public static void fillMatrix(ProjectData pd)
 	{
 		for (int k = 0; k<pd.keywords.size(); k++) {
 			for (int f=0; f<pd.files.size(); f++ ) {
@@ -196,7 +198,7 @@ public class AnalyzerUtil {
 	 * @param keyword
 	 * @return
 	 */
-	private boolean fileHasKeyword(File currentFile, String keyword) {
+	private static boolean fileHasKeyword(File currentFile, String keyword) {
 		
 		BufferedReader input = null;
 		
@@ -226,7 +228,7 @@ public class AnalyzerUtil {
 	 * Counts lines and rejects the short ones
 	 * 
 	 */
-	public boolean checkLOC(ProjectData pd, int threshold, String rejectRoot) {
+	public static boolean checkLOC(ProjectData pd, int threshold, String rejectRoot) {
 		pd.linecount = ClocProject(pd.projectFolder);
 		if (pd.linecount < threshold) {
 			File curr = pd.projectFolder;
@@ -247,7 +249,7 @@ public class AnalyzerUtil {
 	 * @param project_path
 	 * @return
 	 */
-	private int ClocProject(String project_path) 
+	private static int ClocProject(String project_path) 
 	{
 		//System.out.print("Counting lines of scala code in " + project_path + "...");
 		try {
@@ -275,7 +277,7 @@ public class AnalyzerUtil {
 	}
 
 
-	private int ClocProject(File project)
+	private static int ClocProject(File project)
 	{
 		String path = project.getAbsolutePath();
 		return ClocProject(path);

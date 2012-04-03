@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import wozniewicz.githubtool.analyzer.Analyzer;
 import wozniewicz.githubtool.analyzer.ProjectData;
-import wozniewicz.githubtool.downloader.GithubDownloadManager;
+import wozniewicz.githubtool.downloader.Downloader;
 import wozniewicz.githubtool.presenter.Presenter;
 
 public class Application {
@@ -22,14 +22,14 @@ public class Application {
 	
 	
 	Properties properties;
-	GithubDownloadManager downloader;
+	Downloader downloader;
 	Presenter presenter;
 	Analyzer analyzer;
 	
 	/** Constructor */
 	public Application(String propertiesFile) {
 		properties = loadProps(propertiesFile);
-		downloader = new GithubDownloadManager(properties);
+		downloader = new Downloader(properties);
 		presenter = new Presenter();
 		analyzer = new Analyzer(properties);
 	}
@@ -50,7 +50,7 @@ public class Application {
 		
 		// Download as long as there are more pages
 		while (downloader.downloadNextPages(2)) {
-			projects = analyzer.analyzeAll();
+			projects = analyzer.analyzeNewProjects();
 
 			count++;
 			//if (count > 100) break;

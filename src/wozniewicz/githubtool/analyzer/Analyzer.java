@@ -9,6 +9,8 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
+import wozniewicz.githubtool.Stopwatch;
 	
 /**
  * Main application - analyzes downloaded github projects
@@ -29,8 +31,9 @@ public class Analyzer {
 	
 	int thresholdLoc;
 		
-	AnalyzerUtil analyzerUtil = new AnalyzerUtil();
 	List<String> done = new ArrayList<String>();
+	
+	Stopwatch t = new Stopwatch();
 	
 	
 	public Analyzer(Properties props) 
@@ -45,7 +48,7 @@ public class Analyzer {
 	
 	
 	
-	public List<ProjectData> analyzeAll()
+	public List<ProjectData> analyzeNewProjects()
 	{
 
 		/**
@@ -53,20 +56,19 @@ public class Analyzer {
 		 */
 		
 		System.out.print("Finding all new projects...");
-		File[] projects = analyzerUtil.getDirectoryContents(projectRoot);
+		List<File> projects = AnalyzerUtil.getDirectoryContents(projectRoot);
 		
 		
 		/**
 		 * Fill out the ProjectData objects for each project
 		 */
 		
-		List<File> validProjects = Arrays.asList(projects);
 		int count = 1;
 		
-		long starttime = System.currentTimeMillis();
+		t.Start();
 		
 		List<ProjectData> projectDataList = new ArrayList<ProjectData>();
-		for(File project : validProjects) {
+		for(File project : projects) {
 			if (done.contains(project.getName())) {
 				continue;
 			}
@@ -74,18 +76,18 @@ public class Analyzer {
 			pd.setKeywords(keywords);			// Set the keywords of the ProjecData object
 			pd.projectFolder = project;			// Set the root project folder
 			
-			pd.setFiles(analyzerUtil.getAllFiles(project));	// Set the file list in the ProjectData object
+			pd.setFiles(AnalyzerUtil.getAllFiles(project));	// Set the file list in the ProjectData object
 			if (pd.initializeMatrix() < 0 ) {
 				// There weren't enough files in this project, so remove
 				continue;
 			}
 			
 			System.out.println("Collecting data for " + project.getName() + "..." + 
-						" (" + count + "/" + validProjects.size() + ")");
+						" (" + count + "/" + projects.size() + ")");
 			count++;
 			
-			if (analyzerUtil.checkLOC(pd, thresholdLoc, rejectRoot)) {
-				analyzerUtil.fillAllData(pd, finishedRoot);
+			if (AnalyzerUtil.checkLOC(pd, thresholdLoc, rejectRoot)) {
+				AnalyzerUtil.fillAllData(pd, finishedRoot);
 				if (pd.getFilesByKeyword(0).size() > 0)
 				{
 					projectDataList.add(pd);
@@ -94,9 +96,8 @@ public class Analyzer {
 			}
 			
 		}
+		t.Stop();
 		
-		System.out.println("Done collecting data.");
-		System.out.println(System.currentTimeMillis()-starttime + "ms");
 		
 		
 		/**
