@@ -6,3 +6,16 @@ It downloads projects from github, then
 	an HTML table to present the results.  
 
 
+TODO
+	- restructure the way presenter works, goal:
+		1) create an "output" object
+		2) different outputs -- e.g. a table of all projects, or lists of project files->keywords they contain
+		
+	- Keep refactoring "Analyzer"
+	
+	- Reject short/irrelevant projects
+	
+	- Use JSoup in Downloader to find projects better than the current hacky way
+	
+	- Localize properties-handling to Application class, then just pass in the relevant values to the various sub-tools
+	
