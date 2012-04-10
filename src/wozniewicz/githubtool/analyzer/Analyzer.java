@@ -41,7 +41,7 @@ public class Analyzer {
 		projectRoot = props.getProperty("downloadroot");
 		rejectRoot = props.getProperty("rejectroot");
 		finishedRoot = props.getProperty("finishedroot");
-		keywords = (props.getProperty("searchkeyword")).split(" ");
+		keywords = (props.getProperty("searchkeyword")).split("|");
 		thresholdLoc = Integer.parseInt(props.getProperty("minlines"));
 	
 	}
@@ -85,7 +85,7 @@ public class Analyzer {
 			
 			
 			System.out.println("Collecting data for " + name + "..." + 
-						" (" + count + "/" + allProjects.size() + ")");
+						" (" + count + " of " + allProjects.size() + ")");	// progress indicator
 			count++;
 			
 			

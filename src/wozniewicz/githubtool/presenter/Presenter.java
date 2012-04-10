@@ -36,6 +36,21 @@ public class Presenter {
 		s += PresenterUtil.makeHTMLRow(headers);
 		
 		PresenterUtil.writeFile(filename, s);
+		
+		String logfile = filename + ".txt";
+		PresenterUtil.writeFile(logfile, "");
+	}
+	
+	
+	/**
+	 * Adds all the projectData objects in a list, to the given file
+	 * @param projects
+	 * @param filename
+	 */
+	public void addProjects(List<ProjectData> projects, String filename) {
+		for (ProjectData pd : projects) {
+			writeProjectData(pd, filename);
+		}
 	}
 	
 	/** Adds a project's data to the table in the file given by 'filename'
@@ -43,7 +58,7 @@ public class Presenter {
 	 * @param pd
 	 * @param filename
 	 */
-	 void writeProjectData(ProjectData pd, String filename)
+	public void writeProjectData(ProjectData pd, String filename)
 	{		
 		
 		List<String> data = new ArrayList<String>();

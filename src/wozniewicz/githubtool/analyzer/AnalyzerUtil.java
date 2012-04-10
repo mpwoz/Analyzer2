@@ -76,7 +76,7 @@ public class AnalyzerUtil {
 	{
 		File folder = new File(dir);
 		File[] files = folder.listFiles();
-		return Arrays.asList(files);
+		return files != null ? Arrays.asList(files) : null;
 	}
 	
 	

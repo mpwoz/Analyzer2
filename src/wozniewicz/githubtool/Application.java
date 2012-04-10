@@ -1,5 +1,6 @@
 package wozniewicz.githubtool;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -43,18 +44,25 @@ public class Application {
 		String outFile = "output-" + System.currentTimeMillis();
 		outFile = outDir + outFile + ".html";
 		
+		System.out.println("Printing to " + outFile);
+		
+		File f = new File(outDir);
+		f.mkdirs();
+		
 		presenter.startProjectFile(null, outFile);
 		
-		int count = 0;
 		List<ProjectData> projects = new ArrayList<ProjectData>();
 		
+		/*
 		// Download as long as there are more pages
 		while (downloader.downloadNextPages(2)) {
 			projects = analyzer.analyzeNewProjects();
-			
-			count++;
-			//if (count > 100) break;
+			presenter.addProjects(projects, outFile);
 		}
+		*/
+		
+		projects = analyzer.analyzeNewProjects();
+		presenter.addProjects(projects, outFile);
 		
 		presenter.endProjectFile(outFile);
 		
