@@ -17,7 +17,7 @@ public class Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Application application = new Application("app.properties");	// New instance of the application from the app.properties file
+		Application application = new Application("ews.properties");	// New instance of the application from the app.properties file
 		application.Run();
 	} 
 	
@@ -41,15 +41,16 @@ public class Application {
 	 */
 	private void Run() {
 		String outDir = properties.getProperty("outputroot");
-		String outFile = "output-" + System.currentTimeMillis();
-		outFile = outDir + outFile + ".html";
+		String timestamp = "" + System.currentTimeMillis();
 		
-		System.out.println("Printing to " + outFile);
+		String projectList = outDir + "project-" + timestamp + ".html";
+		String projectTables = outDir + "files-" + timestamp + ".html";
 		
 		File f = new File(outDir);
 		f.mkdirs();
 		
-		presenter.startProjectFile(null, outFile);
+		presenter.startProjectFile(null, projectList);
+		presenter.makeEmptyFile(projectTables);
 		
 		List<ProjectData> projects = new ArrayList<ProjectData>();
 		
@@ -62,10 +63,15 @@ public class Application {
 		*/
 		
 		projects = analyzer.analyzeNewProjects();
-		presenter.addProjects(projects, outFile);
+
+		System.out.println("Writing data to files....");
+		presenter.addProjects(projects, projectList);
+		presenter.addProjectTables(projects, projectTables);
 		
-		presenter.endProjectFile(outFile);
 		
+		presenter.endProjectFile(projectList);
+		
+		System.out.println("Done.");
 	}
 
 	/**

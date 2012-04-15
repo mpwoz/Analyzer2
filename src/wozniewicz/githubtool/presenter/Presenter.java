@@ -1,12 +1,6 @@
 package wozniewicz.githubtool.presenter;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +12,11 @@ import wozniewicz.githubtool.analyzer.ProjectData;
  *
  */
 public class Presenter {
+	
+	public void makeEmptyFile(String filename)
+	{
+		PresenterUtil.writeFile(filename, "");
+	}
 	
 	/** Creates and writes the start of an HTML table in 'filename' */
 	public void startProjectFile(List<String> headers, String filename)
@@ -38,7 +37,7 @@ public class Presenter {
 		PresenterUtil.writeFile(filename, s);
 		
 		String logfile = filename + ".txt";
-		PresenterUtil.writeFile(logfile, "");
+		makeEmptyFile(logfile);
 	}
 	
 	
@@ -67,6 +66,28 @@ public class Presenter {
 		data.add(pd.description);
 		
 		PresenterUtil.appendToFile(filename, PresenterUtil.makeHTMLRow(data));
+		
+		String logstr = pd.projectFolder.getName();
+		logstr += "(" + pd.getFilesByKeyword(0).size() + ")";
+		PresenterUtil.appendToFile(filename+".txt", logstr + '\n');
+	}
+	
+	public void writeProjectTable(ProjectData pd, String filename)
+	{
+		String out = "<div class=\"project\">";
+		for(String keyword : pd.keywords) {
+			out += "\t<h3>" + keyword + "</h3>\n"
+				+ "\t<ul>\n"; 
+			
+			for(File file : pd.getFilesByKeyword(keyword)) {
+				out += "\t\t<li>" + file.getName() + "</li>\n";
+			}
+			
+			out += "\t</ul>\n";
+		}
+		out += "</div>";
+		
+		PresenterUtil.appendToFile(filename, out);
 	}
 	
 	
@@ -74,6 +95,14 @@ public class Presenter {
 	{
 		String s = "</table>";
 		PresenterUtil.appendToFile(filename, s);
+	}
+
+	public void addProjectTables(List<ProjectData> projects,
+			String filename) {
+		for (ProjectData pd : projects) {
+			writeProjectTable(pd, filename);
+		}
+		
 	}
 	
 

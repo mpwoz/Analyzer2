@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.jsoup.nodes.Document;
-
 /**
  * Class for analyzing .scala source files
  * @author Martin Wozniewicz
@@ -30,25 +27,7 @@ public class AnalyzerUtil {
 			return name.endsWith(ext);
 		}
 	}	
-	
-	/**
-	 * Given a list of 
-	 * @param projects array of ALL projects, to be checked for eligibility
-	 * @param minLoc minimum lines of code to be accepted
-	 * @return List<File> of all the qualifying projects
-	 */
-	public List<File> getProjectsForAnalysis(File[] projects, int minLoc) {
-		List<File> validProjects = new ArrayList<File>();
-		for (int i=0; i<projects.length; i++) {
-			
-			int lines = ClocProject(projects[i]);
-			if (lines > minLoc) {
-				validProjects.add(projects[i]);
-			}
-			
-		}
-		return validProjects;
-	}
+
 	
 	
 	/**
@@ -198,22 +177,26 @@ public class AnalyzerUtil {
 		try {
 			while (( line = input.readLine()) != null ) {
 				if (line.indexOf(keyword) != -1) {
+					input.close();
 					return true;
 				}
 			}
+			input.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		return false;
 	}
 
 
 	/**
 	 * Counts lines and rejects the short ones
+	 * @param windows 
 	 * 
 	 */
-	public static boolean checkLOC(ProjectData pd, int threshold, String rejectRoot) {
-		pd.linecount = ClocProject(pd.projectFolder);
+	public static boolean checkLOC(ProjectData pd, int threshold, String rejectRoot, boolean windows) {
+		pd.linecount = ClocProject(pd.projectFolder, windows);
 		if (pd.linecount < threshold) {
 			return false;
 		}
@@ -226,12 +209,16 @@ public class AnalyzerUtil {
 	 * @param project_path
 	 * @return
 	 */
-	private static int ClocProject(String project_path) 
+	private static int ClocProject(String project_path, boolean windows) 
 	{
 		//System.out.print("Counting lines of scala code in " + project_path + "...");
 		try {
 	        Runtime rt = Runtime.getRuntime();
-	        String cmd = "lib/cloc.exe --quiet --progress-rate=0 --match-f=\\.scala$ " + project_path;
+	        
+	        String cmd;
+	        if (windows) cmd = "lib/cloc.exe ";
+	        else cmd = "lib/cloc.pl ";
+	        cmd += "--quiet --progress-rate=0 --match-f=\\.scala$ " + project_path;
 	        Process pr = rt.exec(cmd);
 	        
 	        BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -254,10 +241,10 @@ public class AnalyzerUtil {
 	}
 
 
-	private static int ClocProject(File project)
+	private static int ClocProject(File project, boolean windows)
 	{
 		String path = project.getAbsolutePath();
-		return ClocProject(path);
+		return ClocProject(path, windows);
 	}
 
 	

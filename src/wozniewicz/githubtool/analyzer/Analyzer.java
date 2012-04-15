@@ -1,14 +1,8 @@
 package wozniewicz.githubtool.analyzer;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.commons.io.FileUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import wozniewicz.githubtool.Stopwatch;
 	
@@ -30,10 +24,13 @@ public class Analyzer {
 	String[] keywords;
 	
 	int thresholdLoc;
-		
+
+	boolean windows;
+	
 	List<String> done = new ArrayList<String>();
 	
 	Stopwatch t = new Stopwatch();
+
 	
 	
 	public Analyzer(Properties props) 
@@ -41,8 +38,11 @@ public class Analyzer {
 		projectRoot = props.getProperty("downloadroot");
 		rejectRoot = props.getProperty("rejectroot");
 		finishedRoot = props.getProperty("finishedroot");
-		keywords = (props.getProperty("searchkeyword")).split("|");
+		
+		String delim = props.getProperty("searchdelimeter");
+		keywords = (props.getProperty("searchkeyword")).split(delim);
 		thresholdLoc = Integer.parseInt(props.getProperty("minlines"));
+		windows = Boolean.parseBoolean(props.getProperty("windows"));
 	
 	}
 	
@@ -91,13 +91,17 @@ public class Analyzer {
 			
 			ProjectData pd = new ProjectData(project, projectFiles, keywords);	
 			
-			if (AnalyzerUtil.checkLOC(pd, thresholdLoc, rejectRoot)) {
+			
+			if (AnalyzerUtil.checkLOC(pd, thresholdLoc, rejectRoot, windows)) {
 				AnalyzerUtil.fillAllData(pd, finishedRoot);
 				if (pd.getFilesByKeyword(0).size() > 0)
 				{
+					System.out.println("Adding " + pd.projectFolder.getName() );
 					projectStats.add(pd);
 				}
 			}
+			
+			if (count > 50) break;
 			
 		}
 		t.Stop();
@@ -112,6 +116,7 @@ public class Analyzer {
 	{
 		done.add(pd.projectFolder.getName());
 		
+		/*
 		File curr = pd.projectFolder;
 		File rej = new File(finishedRoot, pd.projectFolder.getName());
 		
@@ -119,6 +124,7 @@ public class Analyzer {
 		if (!curr.renameTo(rej)) {
 			System.out.println("Failed.");
 		}
+		*/
 	}
 
 	
