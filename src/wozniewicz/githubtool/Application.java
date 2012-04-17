@@ -17,11 +17,14 @@ public class Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Application application = new Application("ews.properties");	// New instance of the application from the app.properties file
-		application.Run();
+		Application application = new Application("app.properties");	// New instance of the application from the app.properties file
+		//application.Run();
+		application.findKeywords();
 	} 
 	
-	
+
+
+
 	Properties properties;
 	Downloader downloader;
 	Presenter presenter;
@@ -35,7 +38,32 @@ public class Application {
 		analyzer = new Analyzer(properties);
 	}
 	
-
+	
+	/**
+	 * Creates tables of files by keyword
+	 */
+	private void findKeywords() {
+		String outDir = properties.getProperty("outputroot");
+		String timestamp = "" + System.currentTimeMillis();
+		
+		String projectList = outDir + "keywords-" + timestamp + ".html";
+		
+		File f = new File(outDir);
+		f.mkdirs();
+		
+		
+		List<ProjectData> projects = new ArrayList<ProjectData>();
+		
+		projects = analyzer.analyzeNewProjects(15);
+		
+		System.out.println("Writing data to file....");
+		presenter.startKeywordFile(projectList);
+		presenter.addKeywords(projects, projectList);
+		
+		System.out.println("Done.");
+	}
+	
+	
 	/**
 	 * Runs the application
 	 */
@@ -62,7 +90,7 @@ public class Application {
 		}
 		*/
 		
-		projects = analyzer.analyzeNewProjects();
+		projects = analyzer.analyzeNewProjects(0);
 
 		System.out.println("Writing data to files....");
 		presenter.addProjects(projects, projectList);

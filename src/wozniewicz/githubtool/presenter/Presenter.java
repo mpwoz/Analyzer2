@@ -104,7 +104,53 @@ public class Presenter {
 		}
 		
 	}
+
+	public void startKeywordFile(String filename) {
+		makeEmptyFile(filename);
+	}
 	
+	/**
+	 * Writes all the files by keyword on a page (in all projects)
+	 * @param projects
+	 * @param filename
+	 */
+	public void addKeywords(List<ProjectData> projects, String filename) {
+		if (projects.size() < 1) return;
+		
+		List<String> keywords = projects.get(0).keywords; 
+		int numkeys = keywords.size();
+		
+		for (int i=0; i<numkeys; i++) {
+			PresenterUtil.appendToFile(filename, makeKeywordTable(projects, keywords.get(i)));
+		}
+	}
+	
+	public String makeKeywordTable(List<ProjectData> projects, String keyword)
+	{
+		String out = "<table>\n";
+		out += "\t<tr>\n"
+				+ "\t\t<th>Project Name</th>\n"
+				+ "\t\t<th># files</th>\n"
+				+ "\t\t<th>Files containing " + keyword + "</th>\n";
+		for(ProjectData project : projects) 
+		{
+			List<File> files = project.getFilesByKeyword(keyword);
+			int numFiles = files.size();
+			
+			out += "\t<tr>\n"
+					+ "\t\t<td>" + project.projectFolder.getName() + "</td>\n"
+					+ "\t\t<td>" + numFiles + "</td>\n"
+					+ "\t\t<td>\n";
+			for (File f : files)
+			{
+				out += "\t\t\t" + f.getPath() + "<br>\n";
+			}
+			out += "\t\t</td>\n"
+				+ "\t</tr>\n";
+		}
+		out += "</table>\n";
+		return out;		
+	}
 
 	
 	

@@ -40,7 +40,11 @@ public class Analyzer {
 		finishedRoot = props.getProperty("finishedroot");
 		
 		String delim = props.getProperty("searchdelimeter");
-		keywords = (props.getProperty("searchkeyword")).split(delim);
+		delim = "[" + delim + "]+"; // allow for one or more delimeter characters
+		
+		String keystring = props.getProperty("searchkeyword");
+		keywords = keystring.split(delim);
+		
 		thresholdLoc = Integer.parseInt(props.getProperty("minlines"));
 		windows = Boolean.parseBoolean(props.getProperty("windows"));
 	
@@ -48,9 +52,8 @@ public class Analyzer {
 	
 	
 	
-	public List<ProjectData> analyzeNewProjects()
+	public List<ProjectData> analyzeNewProjects(int limit)
 	{
-
 		/**
 		 * Get all projects in the project folder
 		 */
@@ -96,12 +99,11 @@ public class Analyzer {
 				AnalyzerUtil.fillAllData(pd, finishedRoot);
 				if (pd.getFilesByKeyword(0).size() > 0)
 				{
-					System.out.println("Adding " + pd.projectFolder.getName() );
 					projectStats.add(pd);
 				}
 			}
 			
-			if (count > 50) break;
+			if (limit > 0 && count > limit) break;
 			
 		}
 		t.Stop();
