@@ -102,7 +102,7 @@ public class AnalyzerUtil {
 		fillMatrix(pd);
 		File gitdir = getGitSubdirectory(pd);
 		pd.url = Parser.getURLFromFile(gitdir);
-		pd.description = pd.comments = "";
+		pd.description = pd.comments = ""; // empty for new projects
 	}
 	
 	/**
@@ -129,9 +129,16 @@ public class AnalyzerUtil {
 	 */
 	public static void fillMatrix(ProjectData pd)
 	{
-		for (int k = 0; k<pd.keywords.size(); k++) {
-			for (int f=0; f<pd.files.size(); f++ ) {
-				pd.setMatrix(k, f, fileHasKeyword(pd.getFile(f), pd.getKeyword(k)));
+		for (int f=0; f<pd.files.size(); f++ ) {
+			int k = 0;
+			boolean first = fileHasKeyword(pd.getFile(f), pd.getKeyword(k));
+			pd.setMatrix(k, f, first);
+			
+			/* Only proceed to the other keywords if the file has the first (filter) keyword */
+			if (first) {
+				for (k = 1; k<pd.keywords.size(); k++) {
+					pd.setMatrix(k, f, fileHasKeyword(pd.getFile(f), pd.getKeyword(k)));
+				}
 			}
 		}
 	}
@@ -218,7 +225,8 @@ public class AnalyzerUtil {
 	        String cmd;
 	        if (windows) cmd = "lib/cloc.exe ";
 	        else cmd = "lib/cloc.pl ";
-	        cmd += "--quiet --progress-rate=0 --match-f=\\.scala$ " + project_path;
+	        cmd += "--quiet --progress-rate=0 --skip-uniqueness " +
+	        		"--match-f=\\.scala$ " + project_path;
 	        Process pr = rt.exec(cmd);
 	        
 	        BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));

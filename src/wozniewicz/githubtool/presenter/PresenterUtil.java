@@ -36,29 +36,25 @@ public class PresenterUtil {
 	/** Construct an HTML row of all the data in the list */
 	public static String makeHTMLRow(List<String> data) {
 		String s;
-		s = "<tr>";
+		s = "\t<tr>\n";
 		for (String td : data) {
 			s += makeHTMLData(td);
 		}
-		s += "</tr>";
+		s += "\t</tr>\n";
 		return s;
 	}
 	
 	public static String makeHTMLLink(String url, String content) {
 		return "<a href=\"" + url + "\">" + content + "</a>";
 	}
-		
-	public static String makeHTMLData(String data) {
-		return makeHTMLData(data, "");
-	}
 	
-	public static String makeHTMLData(String data, String td_class)
+	public static String makeHTMLData(String data)
 	{
-		return "<td class=\"" + td_class + "\">" + data + "</td>";
+		return "\t\t<td>" + data + "</td>\n";
 	}
 	
 	public static String makeHTMLHeader(String header) {
-		return "<th>" + header + "</th>";
+		return "\t<th>" + header + "</th>\n";
 	}
 	
 	
@@ -77,7 +73,7 @@ public class PresenterUtil {
 	}
 	 
 	/** Append to the end of a file */
-	static void appendToFile(String filename, String contents) 
+	public static void appendToFile(String filename, String contents) 
 	{
 		try {
 		    BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));

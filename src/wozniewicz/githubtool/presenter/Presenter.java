@@ -66,10 +66,6 @@ public class Presenter {
 		data.add(pd.description);
 		
 		PresenterUtil.appendToFile(filename, PresenterUtil.makeHTMLRow(data));
-		
-		String logstr = pd.projectFolder.getName();
-		logstr += "(" + pd.getFilesByKeyword(0).size() + ")";
-		PresenterUtil.appendToFile(filename+".txt", logstr + '\n');
 	}
 	
 	public void writeProjectTable(ProjectData pd, String filename)
@@ -80,7 +76,15 @@ public class Presenter {
 				+ "\t<ul>\n"; 
 			
 			for(File file : pd.getFilesByKeyword(keyword)) {
-				out += "\t\t<li>" + file.getName() + "</li>\n";
+				String name = file.getPath(); 
+				String parent = pd.projectFolder.getName();
+				
+				int offset = parent.length();
+				int i = name.lastIndexOf(parent);
+				if (i >= 0) 
+					name = name.substring(i + offset);
+				
+				out += "\t\t<li>" + name + "</li>\n";
 			}
 			
 			out += "\t</ul>\n";
@@ -137,13 +141,32 @@ public class Presenter {
 			List<File> files = project.getFilesByKeyword(keyword);
 			int numFiles = files.size();
 			
+			if (numFiles == 0) continue;
+			
 			out += "\t<tr>\n"
 					+ "\t\t<td>" + project.projectFolder.getName() + "</td>\n"
 					+ "\t\t<td>" + numFiles + "</td>\n"
 					+ "\t\t<td>\n";
 			for (File f : files)
 			{
-				out += "\t\t\t" + f.getPath() + "<br>\n";
+				String name = f.getPath(); 
+				String parent = project.projectFolder.getName();
+				
+				int offset = parent.length();
+				
+				int i = name.lastIndexOf(parent);
+				int j = name.indexOf("src");
+				
+				int index = Math.min(i, j);
+				
+				if (index >= 0) 
+					name = name.substring(index);
+				
+				index = name.indexOf('\\');
+				if (index >= 0 && index < name.length() - 1)
+					name = name.substring(index);
+				
+				out += "\t\t\t" + name + "<br>\n";
 			}
 			out += "\t\t</td>\n"
 				+ "\t</tr>\n";

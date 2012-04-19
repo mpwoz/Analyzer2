@@ -17,9 +17,10 @@ public class Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Application application = new Application("app.properties");	// New instance of the application from the app.properties file
-		//application.Run();
-		application.findKeywords();
+		
+		// Specify correct properties file here
+		Application application = new Application("app.properties");
+		application.runAll(0);
 	} 
 	
 
@@ -39,26 +40,29 @@ public class Application {
 	}
 	
 	
-	/**
-	 * Creates tables of files by keyword
-	 */
-	private void findKeywords() {
+	private void runAll(int limit) {
+		List<ProjectData> projects = new ArrayList<ProjectData>();
+		projects = analyzer.analyzeNewProjects(limit);
+		
+		
 		String outDir = properties.getProperty("outputroot");
 		String timestamp = "" + System.currentTimeMillis();
 		
-		String projectList = outDir + "keywords-" + timestamp + ".html";
+		String projectList = outDir + "projects-" + timestamp + ".html";
+		String fileList = outDir + "keywords-" + timestamp + ".html";
 		
+		// Make the directory if it doesn't yet exist
 		File f = new File(outDir);
 		f.mkdirs();
 		
-		
-		List<ProjectData> projects = new ArrayList<ProjectData>();
-		
-		projects = analyzer.analyzeNewProjects(15);
-		
+		// Write out all the data to separate html files
 		System.out.println("Writing data to file....");
-		presenter.startKeywordFile(projectList);
-		presenter.addKeywords(projects, projectList);
+		presenter.startKeywordFile(fileList);
+		presenter.addKeywords(projects, fileList);
+
+		presenter.startProjectFile(null, projectList);
+		presenter.addProjects(projects, projectList);
+		presenter.endProjectFile(projectList);
 		
 		System.out.println("Done.");
 	}
@@ -67,18 +71,16 @@ public class Application {
 	/**
 	 * Runs the application
 	 */
-	private void Run() {
+	private void findLOC() {
 		String outDir = properties.getProperty("outputroot");
 		String timestamp = "" + System.currentTimeMillis();
 		
 		String projectList = outDir + "project-" + timestamp + ".html";
-		String projectTables = outDir + "files-" + timestamp + ".html";
 		
 		File f = new File(outDir);
 		f.mkdirs();
 		
 		presenter.startProjectFile(null, projectList);
-		presenter.makeEmptyFile(projectTables);
 		
 		List<ProjectData> projects = new ArrayList<ProjectData>();
 		
@@ -92,10 +94,8 @@ public class Application {
 		
 		projects = analyzer.analyzeNewProjects(0);
 
-		System.out.println("Writing data to files....");
+		System.out.println("Writing data to file....");
 		presenter.addProjects(projects, projectList);
-		presenter.addProjectTables(projects, projectTables);
-		
 		
 		presenter.endProjectFile(projectList);
 		

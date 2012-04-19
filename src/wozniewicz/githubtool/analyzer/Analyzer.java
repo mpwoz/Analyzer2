@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import wozniewicz.githubtool.Stopwatch;
+import wozniewicz.githubtool.presenter.PresenterUtil;
 	
 /**
  * Main application - analyzes downloaded github projects
@@ -87,21 +88,29 @@ public class Analyzer {
 				continue;
 			
 			
-			System.out.println("Collecting data for " + name + "..." + 
+			System.out.print("Collecting data for " + name + "..." + 
 						" (" + count + " of " + allProjects.size() + ")");	// progress indicator
 			count++;
 			
 			
 			ProjectData pd = new ProjectData(project, projectFiles, keywords);	
 			
-			
+			// Does it meet minimum lines of code?
 			if (AnalyzerUtil.checkLOC(pd, thresholdLoc, rejectRoot, windows)) {
 				AnalyzerUtil.fillAllData(pd, finishedRoot);
 				if (pd.getFilesByKeyword(0).size() > 0)
 				{
+					System.out.print(" + ");
 					projectStats.add(pd);
 				}
 			}
+			
+			// Not enough lines, reject this project
+			else {
+				rejectProject(pd);				
+			}
+			
+			System.out.println("");
 			
 			if (limit > 0 && count > limit) break;
 			
@@ -113,7 +122,19 @@ public class Analyzer {
 			
 	}
 	
-	
+	/**
+	 * Rejects a project that doesn't meet LOC requirement (to skip over it next time)
+	 * @param pd
+	 */
+	private void rejectProject(ProjectData pd) {
+		// TODO ACtually do something with this data
+		String name = pd.projectFolder.getName() + "\n";
+		String rejectList = rejectRoot + "reject.txt";
+		PresenterUtil.appendToFile(rejectList, name);
+	}
+
+
+
 	void moveToDone(ProjectData pd) 
 	{
 		done.add(pd.projectFolder.getName());

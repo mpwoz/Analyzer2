@@ -6,7 +6,18 @@ It downloads projects from github, then
 	an HTML table to present the results.  
 
 
+TASKS
+	- Filter projects on CD by 'scala.actor'
+		- LOC and description table for these
+	
+	- File-by-keyword tables for Akka actors
+	
+	
 TODO
+
+	- Overhaul : use some sort of message-passing or IPC pipes to separate downloader/analyzer/presenter components
+		(not realistic at this point, but thought for next project )
+
 	- restructure the way presenter works, goal:
 		1) create an "output" object
 		2) different outputs -- e.g. a table of all projects, or lists of project files->keywords they contain
