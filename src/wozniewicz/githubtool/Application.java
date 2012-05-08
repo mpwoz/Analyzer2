@@ -19,7 +19,7 @@ public class Application {
 	public static void main(String[] args) {
 		
 		// Specify correct properties file here
-		Application application = new Application("app.properties");
+		Application application = new Application("ews.properties");
 		application.runAll(0);
 	} 
 	
@@ -34,7 +34,7 @@ public class Application {
 	/** Constructor */
 	public Application(String propertiesFile) {
 		properties = loadProps(propertiesFile);
-		downloader = new Downloader(properties);
+		//downloader = new Downloader(properties);
 		presenter = new Presenter();
 		analyzer = new Analyzer(properties);
 	}
@@ -50,6 +50,7 @@ public class Application {
 		
 		String projectList = outDir + "projects-" + timestamp + ".html";
 		String fileList = outDir + "keywords-" + timestamp + ".html";
+		String summaryFile = outDir + "summary-" + timestamp + ".html";
 		
 		// Make the directory if it doesn't yet exist
 		File f = new File(outDir);
@@ -63,6 +64,8 @@ public class Application {
 		presenter.startProjectFile(null, projectList);
 		presenter.addProjects(projects, projectList);
 		presenter.endProjectFile(projectList);
+		
+		presenter.summarizeKeywords(projects, summaryFile);
 		
 		System.out.println("Done.");
 	}
@@ -96,6 +99,7 @@ public class Application {
 
 		System.out.println("Writing data to file....");
 		presenter.addProjects(projects, projectList);
+		
 		
 		presenter.endProjectFile(projectList);
 		

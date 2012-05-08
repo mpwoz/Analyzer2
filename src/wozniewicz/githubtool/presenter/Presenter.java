@@ -176,6 +176,76 @@ public class Presenter {
 	}
 
 	
+	/**
+	 * Summarizes all the keywords present in the projects
+	 * @param projects
+	 * @param file
+	 */
+	public void summarizeKeywords(List<ProjectData> projects, String file) {
+		int nKeywords = projects.get(0).keywords.size();
+		int [] keycount_files = new int [nKeywords]; 
+		int [] keycount_projects = new int [nKeywords];
+		
+		int totalFiles= 0;
+		int totalProjects = projects.size();
+		
+		for (int i = 0; i < nKeywords; i++)
+		{
+			keycount_files[i] = 0;
+			for(ProjectData pd : projects) {
+				int numKeys = pd.getFilesByKeyword(i).size();
+				keycount_files[i] += numKeys;
+				if (numKeys > 0) keycount_projects[i]++;
+				
+				if (i == 0)
+					totalFiles += pd.files.size();
+			}
+		}
+		
+		
+		String [] headers = {"Keyword", "# files", "# projects", "% of all files", "% of all projects"};
+		
+		int i = 0;
+		String out = "<table>\n";
+		
+		
+		out += "\t<tr>\n";
+			for (String heading : headers) {
+				out += "\t\t<th>" + headers[i] + "</th>\n";
+				i++;
+			}
+		out += "\t</tr>\n";
+		
+		i = 0;
+		for (String key : projects.get(0).keywords) {
+			
+			double percent_files = (1.0*(keycount_files[i])/totalFiles)*10000.0;
+			int rpercent_files = (int)percent_files;
+			percent_files = (double)rpercent_files / 100.0;
+
+			double percent_projects = (1.0*(keycount_projects[i])/totalProjects)*10000.0;
+			int rpercent_projects = (int)percent_projects;
+			percent_projects = (double)rpercent_projects / 100.0;
+			
+			out += "\t<tr>\n";
+			out += "\t\t<td>" + key + "</td>\n";
+			out += "\t\t<td>" + keycount_files[i] + "</td>\n";
+			out += "\t\t<td>" + keycount_projects[i] + "</td>\n";
+			out += "\t\t<td>" + percent_files  + "</td>\n";
+			out += "\t\t<td>" + percent_projects  + "</td>\n";
+			out += "\t</tr>\n";
+			i++;
+		}
+		
+		out += "</table>\n";
+		out += "<br/>";
+		out += "Total files: " + totalFiles + "<br/>\n";
+		out += "Total projects: " + totalProjects + "<br/>\n";
+		
+		PresenterUtil.appendToFile(file, out);
+	}
+
+	
 	
 	
 	

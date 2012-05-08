@@ -113,9 +113,11 @@ public class AnalyzerUtil {
 	private static File getGitSubdirectory(ProjectData pd) {
 		File projfolder = pd.projectFolder;
 		List<File> contents = getDirectoryContents(projfolder.getAbsolutePath());
+		String name = pd.projectFolder.getName().toLowerCase();
 		for (File f : contents)
 		{
-			if ( f.getName().indexOf(pd.projectFolder.getName()) >= 0 ) {
+			String subname = f.getName().toLowerCase();
+			if ( subname.indexOf(name) >= 0 ) {
 				return f;
 			}
 		}

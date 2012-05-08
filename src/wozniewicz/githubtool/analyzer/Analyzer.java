@@ -1,8 +1,11 @@
 package wozniewicz.githubtool.analyzer;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import org.apache.commons.io.FileUtils;
 
 import wozniewicz.githubtool.Stopwatch;
 import wozniewicz.githubtool.presenter.PresenterUtil;
@@ -131,6 +134,13 @@ public class Analyzer {
 		String name = pd.projectFolder.getName() + "\n";
 		String rejectList = rejectRoot + "reject.txt";
 		PresenterUtil.appendToFile(rejectList, name);
+		
+		try {
+			FileUtils.deleteDirectory(pd.projectFolder);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 
