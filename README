@@ -6,27 +6,27 @@ It downloads projects from github, then
 	an HTML table to present the results.  
 
 
-TASKS
-	- Filter projects on CD by 'scala.actor'
-		- LOC and description table for these
-	
-	- File-by-keyword tables for Akka actors
-	
-	
-TODO
+To use, configure setting in either of the "*.properties" files.  The fields
+should be self-explanatory.
 
-	- Overhaul : use some sort of message-passing or IPC pipes to separate downloader/analyzer/presenter components
-		(not realistic at this point, but thought for next project )
+The application has downloading functionality, however this has been disabled
+in the current version (since it took too long and wasn't necessary)
 
-	- restructure the way presenter works, goal:
-		1) create an "output" object
-		2) different outputs -- e.g. a table of all projects, or lists of project files->keywords they contain
-		
-	- Keep refactoring "Analyzer"
-	
-	- Reject short/irrelevant projects
-	
-	- Use JSoup in Downloader to find projects better than the current hacky way
-	
-	- Localize properties-handling to Application class, then just pass in the relevant values to the various sub-tools
-	
+Enabling it is just a matter of uncommenting some lines in "App.java" which is
+the main class.
+
+In its current state, the program simply "analyzes" all the applications in
+the provided folder ('downloaddir' in the property file) and outputs several
+HTML tables with the results.  It provides file-by-file keyword results, 
+a table with just the projects related to keywords, as well as a summary
+file with some statistics.
+
+**Note** The application will delete any projects that are smaller than the 
+threshold LOC (lines of code) specified in the property file.  To change
+this functionality, look at the Analyzer.java class and comment out that part.
+
+Overall, this project isn't very well architected and ended up being a bit of
+a mess.  For this I apologize, unfortunately time constraints prevented me from
+going back and refactoring out my mistakes.  In the state it is now, the
+program simply looks for keywords in projects downloaded from Github and 
+outputs resulting HTML.  
